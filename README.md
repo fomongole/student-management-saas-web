@@ -1,9 +1,6 @@
 <div align="center">
   <img src="./public/logo.jpg" alt="Elimu Logo" width="120" height="120" />
-
   <br />
-  <br />
-
   # 🎓 Elimu Management System (Frontend)
   
   **A highly scalable, multi-tenant School Management SaaS built specifically for the Ugandan Education System.**
