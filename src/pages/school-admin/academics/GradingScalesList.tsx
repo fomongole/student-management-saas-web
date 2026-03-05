@@ -3,7 +3,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Plus, Trash2, Settings2 } from 'lucide-react';
 
-import { gradingScaleSchema, type GradingScaleFormValues } from '@/schemas/academic.schema';
+import { 
+  gradingScaleSchema, 
+  type GradingScaleFormValues, 
+  type GradingScaleFormInput 
+} from '@/schemas/academic.schema';
+
 import { useGradingScales, useCreateGradingScale, useDeleteGradingScale } from '@/hooks/useGrades';
 import { Skeleton } from '@/components/ui/Skeleton';
 
@@ -14,7 +19,7 @@ export default function GradingScalesList() {
   
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<GradingScaleFormValues>({
+const { register, handleSubmit, formState: { errors }, reset } = useForm<GradingScaleFormInput, any, GradingScaleFormValues>({
     resolver: zodResolver(gradingScaleSchema),
   });
 

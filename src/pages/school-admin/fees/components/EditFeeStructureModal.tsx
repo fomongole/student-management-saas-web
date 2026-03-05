@@ -3,7 +3,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, X } from 'lucide-react';
 
-import { updateFeeStructureSchema, type UpdateFeeStructureFormValues } from '@/schemas/fee.schema';
+import { 
+  updateFeeStructureSchema, 
+  type UpdateFeeStructureFormValues,
+  type UpdateFeeStructureFormInput 
+} from '@/schemas/fee.schema';
+
 import { useUpdateFeeStructure } from '@/hooks/useFees';
 import { useClasses } from '@/hooks/useClasses';
 import type { FeeStructure } from '@/types/fee';
@@ -18,7 +23,12 @@ export default function EditFeeStructureModal({ isOpen, onClose, feeStructure }:
   const { mutate: updateStructure, isPending } = useUpdateFeeStructure();
   const { data: classes, isLoading: isLoadingClasses } = useClasses();
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<UpdateFeeStructureFormValues>({
+ // Pass <Input, Context, Output> to useForm
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<
+    UpdateFeeStructureFormInput, 
+    any, 
+    UpdateFeeStructureFormValues
+  >({
     resolver: zodResolver(updateFeeStructureSchema),
   });
 

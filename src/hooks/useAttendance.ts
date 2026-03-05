@@ -1,4 +1,3 @@
-// src/hooks/useAttendance.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import api from '@/services/api';

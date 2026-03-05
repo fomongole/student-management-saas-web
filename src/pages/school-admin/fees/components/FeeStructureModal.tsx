@@ -2,7 +2,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, X } from 'lucide-react';
 
-import { createFeeStructureSchema, type CreateFeeStructureFormValues } from '@/schemas/fee.schema';
+import { 
+  createFeeStructureSchema, 
+  type CreateFeeStructureFormValues, 
+  type CreateFeeStructureFormInput 
+} from '@/schemas/fee.schema';
+
 import { useCreateFeeStructure } from '@/hooks/useFees';
 import { useClasses } from '@/hooks/useClasses';
 
@@ -15,7 +20,11 @@ export default function FeeStructureModal({ isOpen, onClose }: FeeStructureModal
   const { mutate: createStructure, isPending } = useCreateFeeStructure();
   const { data: classes, isLoading: isLoadingClasses } = useClasses();
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<CreateFeeStructureFormValues>({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<
+    CreateFeeStructureFormInput, 
+    any, 
+    CreateFeeStructureFormValues
+  >({
     resolver: zodResolver(createFeeStructureSchema),
     defaultValues: {
       year: new Date().getFullYear(),

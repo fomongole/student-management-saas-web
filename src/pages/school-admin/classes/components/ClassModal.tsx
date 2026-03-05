@@ -24,7 +24,6 @@ export default function ClassModal({ isOpen, onClose }: ClassModalProps) {
   const { mutate: createClass, isPending } = useCreateClass();
   const { data: teachersData, isLoading: isLoadingTeachers } = useTeachers({ skip: 0, limit: 100 });
   
-  // ✅ FETCH DYNAMIC LEVELS
   const { data: schoolLevels, isLoading: isLoadingLevels } = useMySchoolLevels(); 
 
   const { register, handleSubmit, formState: { errors }, reset, watch } = useForm<CreateClassFormValues>({
@@ -65,7 +64,7 @@ export default function ClassModal({ isOpen, onClose }: ClassModalProps) {
 
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Academic Level <span className="text-red-500">*</span></label>
-              {/* ✅ DYNAMIC DROPDOWN USING YOUR HOOK */}
+              {/* DYNAMIC DROPDOWN USING YOUR HOOK */}
               <select 
                 {...register('level')} 
                 disabled={isLoadingLevels} 

@@ -1,4 +1,3 @@
-// src/App.tsx
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from '@/pages/auth/Login';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -27,7 +26,7 @@ import StudentDashboardHome from './pages/student/StudentDashboardHome';
 import StudentGrades from './pages/student/StudentGrades';
 import SchoolSettings from './pages/school-admin/settings/SchoolSettings';
 
-// 1. Create a smart index router component
+// A smart index router component
 function DashboardIndex() {
   const { user } = useAuthStore();
   

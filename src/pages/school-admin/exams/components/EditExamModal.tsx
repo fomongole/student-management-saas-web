@@ -3,7 +3,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, X } from 'lucide-react';
 
-import { updateExamSchema, type UpdateExamFormValues } from '@/schemas/academic.schema';
+import { 
+  updateExamSchema, 
+  type UpdateExamFormValues, 
+  type UpdateExamFormInput
+} from '@/schemas/academic.schema';
 import { useUpdateExam } from '@/hooks/useExams';
 import { useSubjects } from '@/hooks/useSubjects';
 import type { Exam } from '@/types/exam';
@@ -18,7 +22,8 @@ export default function EditExamModal({ isOpen, onClose, exam }: EditExamModalPr
   const { mutate: updateExam, isPending } = useUpdateExam();
   const { data: subjects, isLoading: isLoadingSubjects } = useSubjects();
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<UpdateExamFormValues>({
+// Pass both Input and Output types to useForm
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<UpdateExamFormInput, any, UpdateExamFormValues>({
     resolver: zodResolver(updateExamSchema),
   });
 

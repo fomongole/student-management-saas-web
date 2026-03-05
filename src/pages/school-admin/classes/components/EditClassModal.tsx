@@ -27,7 +27,7 @@ export default function EditClassModal({ isOpen, onClose, classData }: EditClass
   const { mutate: updateClass, isPending } = useUpdateClass();
   const { data: teachersData, isLoading: isLoadingTeachers } = useTeachers({ skip: 0, limit: 100 });
   
-  // ✅ FETCH DYNAMIC LEVELS
+  // FETCH DYNAMIC LEVELS
   const { data: schoolLevels, isLoading: isLoadingLevels } = useMySchoolLevels();
 
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<UpdateClassFormValues>({
@@ -51,12 +51,11 @@ export default function EditClassModal({ isOpen, onClose, classData }: EditClass
 
   if (!isOpen || !classData) return null;
 
-  const onSubmit = (data: UpdateClassFormValues) => {
-    const payload = {
+const onSubmit = (data: UpdateClassFormValues) => {
+    // We keep the payload strictly typed to UpdateClassFormValues.
+    // The useUpdateClass hook will handle converting empty strings to nulls!
+    const payload: UpdateClassFormValues = {
       ...data,
-      capacity: data.capacity === '' ? null : Number(data.capacity),
-      form_teacher_id: data.form_teacher_id === '' ? null : data.form_teacher_id,
-      stream: data.stream === '' ? null : data.stream,
       // Strip category if they change it away from A_LEVEL
       category: data.level === 'A_LEVEL' ? data.category : null,
     };
@@ -91,7 +90,7 @@ export default function EditClassModal({ isOpen, onClose, classData }: EditClass
 
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-700">Academic Level</label>
-              {/* ✅ DYNAMIC DROPDOWN */}
+              {/* DYNAMIC DROPDOWN */}
               <select 
                 {...register('level')} 
                 disabled={isLoadingLevels}

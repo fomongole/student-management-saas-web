@@ -1,7 +1,6 @@
 // src/schemas/academic.schema.ts
 import * as z from 'zod';
 
-// --- GRADING SCHEMAS ---
 export const gradingScaleSchema = z.object({
   grade_symbol: z.string().min(1, 'Symbol is required (e.g., A, D1)'),
   min_score: z.coerce.number().min(0, 'Minimum score is 0').max(100),
@@ -13,6 +12,10 @@ export const gradingScaleSchema = z.object({
   path: ["min_score"],
 });
 
+// The type before coercion (allows unknowns/strings)
+export type GradingScaleFormInput = z.input<typeof gradingScaleSchema>;
+
+// The type after coercion (strict numbers)
 export type GradingScaleFormValues = z.infer<typeof gradingScaleSchema>;
 
 // --- EXAM SCHEMAS ---
@@ -23,7 +26,10 @@ export const createExamSchema = z.object({
   subject_id: z.string().uuid('Please select a subject'),
 });
 
+export type CreateExamFormInput = z.input<typeof createExamSchema>;
 export type CreateExamFormValues = z.infer<typeof createExamSchema>;  
 
 export const updateExamSchema = createExamSchema.partial();
+
+export type UpdateExamFormInput = z.input<typeof updateExamSchema>;
 export type UpdateExamFormValues = z.infer<typeof updateExamSchema>;

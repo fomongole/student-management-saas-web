@@ -1,4 +1,3 @@
-// src/schemas/subject.schema.ts
 import * as z from 'zod';
 import { ACADEMIC_LEVELS } from './class.schema';
 
@@ -14,9 +13,11 @@ export const createSubjectSchema = z.object({
   teacher_id: z.string().uuid().optional().or(z.literal('')), 
 });
 
+export type CreateSubjectFormInput = z.input<typeof createSubjectSchema>;
 export type CreateSubjectFormValues = z.infer<typeof createSubjectSchema>;
 
 export const updateSubjectSchema = createSubjectSchema.partial();
+export type UpdateSubjectFormInput = z.input<typeof updateSubjectSchema>;
 export type UpdateSubjectFormValues = z.infer<typeof updateSubjectSchema>;
 
 export const assignSubjectsSchema = z.object({
@@ -29,4 +30,5 @@ export const assignSubjectsSchema = z.object({
   ),
 });
 
+export type AssignSubjectsFormInput = z.input<typeof assignSubjectsSchema>;
 export type AssignSubjectsFormValues = z.infer<typeof assignSubjectsSchema>;

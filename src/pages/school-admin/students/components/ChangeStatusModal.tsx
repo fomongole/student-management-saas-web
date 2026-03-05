@@ -84,11 +84,11 @@ export default function ChangeStatusModal({ isOpen, onClose, student }: ChangeSt
                 {...register('enrollment_status')} 
                 className="block w-full rounded-lg border-gray-300 bg-white py-2.5 pl-3 pr-10 text-sm focus:border-amber-500 focus:ring-amber-500 font-medium shadow-sm"
               >
-                <option value="ACTIVE">🟢 Active Enrollment</option>
-                <option value="GRADUATED">🎓 Graduated</option>
-                <option value="TRANSFERRED">➡️ Transferred to another school</option>
-                <option value="EXPELLED">⛔ Expelled</option>
-                <option value="DROPPED_OUT">🚪 Dropped Out</option>
+                <option value="ACTIVE">Active Enrollment</option>
+                <option value="GRADUATED">Graduated</option>
+                <option value="TRANSFERRED">Transferred to another school</option>
+                <option value="EXPELLED">Expelled</option>
+                <option value="DROPPED_OUT">Dropped Out</option>
               </select>
             </div>
 

@@ -4,7 +4,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, X, Banknote, History, Receipt, AlertCircle, Printer, TrendingUp } from 'lucide-react';
 
-import { recordPaymentSchema, type RecordPaymentFormValues } from '@/schemas/fee.schema';
+import { 
+  recordPaymentSchema, 
+  type RecordPaymentFormValues,
+  type RecordPaymentFormInput
+} from '@/schemas/fee.schema';
 import {
   useStudentBalance,
   useStudentPaymentHistory,
@@ -64,7 +68,11 @@ export default function StudentFinancialsModal({ isOpen, onClose, student }: Stu
 
   const { mutate: recordPayment, isPending } = useRecordPayment(student?.id || '');
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<RecordPaymentFormValues>({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<
+    RecordPaymentFormInput, 
+    any, 
+    RecordPaymentFormValues
+  >({
     resolver: zodResolver(recordPaymentSchema),
   });
 

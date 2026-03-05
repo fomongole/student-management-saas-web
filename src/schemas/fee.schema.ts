@@ -1,5 +1,6 @@
-// src/schemas/fee.schema.ts
 import * as z from 'zod';
+
+// --- FEE STRUCTURE SCHEMAS ---
 
 export const createFeeStructureSchema = z.object({
   name: z.string().min(2, 'Fee name is required (e.g. Term 1 Tuition)'),
@@ -10,7 +11,23 @@ export const createFeeStructureSchema = z.object({
   class_id: z.string().uuid().optional().or(z.literal('')), 
 });
 
+/** Use in useForm<CreateFeeStructureFormInput, any, CreateFeeStructureFormValues> */
+export type CreateFeeStructureFormInput = z.input<typeof createFeeStructureSchema>;
+/** Used for onSubmit(data: CreateFeeStructureFormValues) */
 export type CreateFeeStructureFormValues = z.infer<typeof createFeeStructureSchema>;
+
+
+// --- UPDATE SCHEMAS ---
+
+export const updateFeeStructureSchema = createFeeStructureSchema.partial();
+
+/**For the Edit Modals */
+export type UpdateFeeStructureFormInput = z.input<typeof updateFeeStructureSchema>;
+/** For onSubmit(data: UpdateFeeStructureFormValues) */
+export type UpdateFeeStructureFormValues = z.infer<typeof updateFeeStructureSchema>;
+
+
+// --- PAYMENT SCHEMAS ---
 
 export const recordPaymentSchema = z.object({
   fee_structure_id: z.string().uuid('Please select what this payment is for'),
@@ -19,7 +36,5 @@ export const recordPaymentSchema = z.object({
   reference_number: z.string().min(3, 'Receipt/Reference number required'),
 });
 
+export type RecordPaymentFormInput = z.input<typeof recordPaymentSchema>;
 export type RecordPaymentFormValues = z.infer<typeof recordPaymentSchema>;
-
-export const updateFeeStructureSchema = createFeeStructureSchema.partial();
-export type UpdateFeeStructureFormValues = z.infer<typeof updateFeeStructureSchema>;

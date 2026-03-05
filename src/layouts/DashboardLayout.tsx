@@ -1,4 +1,3 @@
-// src/layouts/DashboardLayout.tsx
 import { useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { 
@@ -45,8 +44,8 @@ const NAVIGATION_CONFIG: Record<UserRole, Array<{ name: string; href: string; ic
   ],
   TEACHER: [
     { name: 'My Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Daily Attendance', href: '/dashboard/attendance', icon: CalendarCheck }, // Reuses Admin tool
-    { name: 'Mark Sheets Entry', href: '/dashboard/mark-sheets', icon: FileSpreadsheet }, // Reuses Admin tool
+    { name: 'Daily Attendance', href: '/dashboard/attendance', icon: CalendarCheck },
+    { name: 'Mark Sheets Entry', href: '/dashboard/mark-sheets', icon: FileSpreadsheet },
   ],
   STUDENT: [
     { name: 'My Portal', href: '/dashboard', icon: LayoutDashboard },
@@ -133,7 +132,6 @@ export default function DashboardLayout() {
           {/* Right Side Header Items */}
           <div className="ml-auto flex items-center space-x-2 sm:space-x-4">
             
-            {/* ✅ Replace the old Bell button with this: */}
             <NotificationsDropdown />
 
             <div className="h-6 w-px bg-gray-200 mx-1 sm:mx-2 hidden sm:block"></div>

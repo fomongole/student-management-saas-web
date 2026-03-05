@@ -23,7 +23,6 @@ export default function TeacherRowActions({ teacher }: { teacher: Teacher }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // ✅ NEW: Delete confirmation handler
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to permanently remove ${teacher.user.first_name} ${teacher.user.last_name}? Their access will be revoked immediately.`)) {
       deleteTeacher(teacher.id);
@@ -60,7 +59,6 @@ export default function TeacherRowActions({ teacher }: { teacher: Teacher }) {
                 Edit Profile
               </button>
               
-              {/* ✅ NEW: Delete Button */}
               <div className="border-t border-gray-100 my-1"></div>
               <button
                 onClick={handleDelete}

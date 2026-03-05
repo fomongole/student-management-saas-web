@@ -2,8 +2,12 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, X, Info } from 'lucide-react';
 
-import { createSubjectSchema } from '@/schemas/subject.schema';
-import type { CreateSubjectFormValues } from '@/schemas/subject.schema';
+import { 
+  createSubjectSchema, 
+  type CreateSubjectFormValues,
+  type CreateSubjectFormInput
+} from '@/schemas/subject.schema';
+
 import { useCreateSubject } from '@/hooks/useSubjects';
 import { useTeachers } from '@/hooks/useTeachers';
 import { useMySchoolLevels } from '@/hooks/useSchools';
@@ -29,7 +33,11 @@ export default function SubjectModal({ isOpen, onClose }: SubjectModalProps) {
   // Fetch only the levels this school operates
   const { data: schoolLevels, isLoading: isLoadingLevels } = useMySchoolLevels();
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<CreateSubjectFormValues>({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<
+    CreateSubjectFormInput, 
+    any, 
+    CreateSubjectFormValues
+  >({
     resolver: zodResolver(createSubjectSchema),
     defaultValues: {
       is_core: true,
