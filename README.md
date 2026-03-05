@@ -1,73 +1,101 @@
-# React + TypeScript + Vite
+<div align="center">
+  <img src="https://via.placeholder.com/150x150/4f46e5/ffffff?text=E" alt="Elimu Logo" width="100" height="100" />
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+  <br />
+  <br />
 
-Currently, two official plugins are available:
+  # 🎓 Elimu Management System (Frontend)
+  
+  **A highly scalable, multi-tenant School Management SaaS built specifically for the Ugandan Education System.**
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+  <p align="center">
+    <a href="https://reactjs.org/"><img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" /></a>
+    <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+    <a href="https://vitejs.dev/"><img src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E" alt="Vite" /></a>
+    <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /></a>
+    <a href="https://tanstack.com/query/latest"><img src="https://img.shields.io/badge/React_Query-FF4154?style=for-the-badge&logo=react-query&logoColor=white" alt="React Query" /></a>
+  </p>
 
-## React Compiler
+  <p align="center">
+    <a href="#about-the-project">About</a> •
+    <a href="#key-features">Features</a> •
+    <a href="#tech-stack">Tech Stack</a> •
+    <a href="#getting-started">Getting Started</a>
+  </p>
+</div>
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 📖 About the Project
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+**Elimu** is a cloud-based, multi-tenant SaaS application designed to digitize and streamline school operations. Built with a deep understanding of the **Ugandan Education System** (Nursery, P1-P7, O-Level, A-Level Sciences/Arts), it natively supports complex class streaming, UNEB grading structures, automated report card generation, and secure financial ledgers.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+This repository contains the **Frontend Client Application**, which connects to a high-performance Python/FastAPI backend.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## ✨ Key Features
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The UI dynamically adapts based on strict **Role-Based Access Control (RBAC)**:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 👑 Super Admin (Platform Owner)
+* **SaaS Dashboard:** Global metrics tracking active schools, total users, and platform health.
+* **Tenant Onboarding:** Register new schools and explicitly lock their licensed academic levels.
+* **Access Management:** Assign and revoke Headteacher (School Admin) accounts.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 🏫 School Admin (Headteacher/Bursar)
+* **Executive Dashboard:** Real-time financial KPIs (Expected Revenue, Collected, Outstanding) and attendance trends.
+* **Ugandan Academic Setup:** Create classes with distinct base names (e.g., P1) and unlimited streams (e.g., P1 East, P1 West). Native support for A-Level Sciences vs. Arts.
+* **Financial Ledger:** Record payments, guard against double-receipt entries, and automatically prevent overpayments.
+* **Data Export:** One-click PDF receipt generation and CSV exports for fee defaulters.
+
+### 👨‍🏫 Teacher
+* **Daily Roll Call:** Intuitive, date-filtered attendance marking.
+* **Mark Sheets:** Fast, spreadsheet-style data entry for exam scores and comments.
+
+### 👨‍👩‍👧‍👦 Parent & Student Portals
+* **Unified Parent Portal:** Parents log in once to view academic and financial data for *all* their linked children.
+* **Student Dashboard:** Students can view their term-by-term UNEB-formatted report cards (grouped by exam session) and download official PDF copies.
+
+---
+
+## 🛠 Tech Stack
+
+This project is built using modern frontend engineering standards:
+
+| Tool / Library | Purpose |
+| :--- | :--- |
+| **[React 18](https://react.dev/)** | Core UI library |
+| **[TypeScript](https://www.typescriptlang.org/)** | Static typing for bulletproof code |
+| **[Vite](https://vitejs.dev/)** | Lightning-fast build tool and development server |
+| **[Tailwind CSS](https://tailwindcss.com/)** | Utility-first CSS framework for beautiful, responsive design |
+| **[React Query](https://tanstack.com/query)** | Server state management, caching, and background data synchronization |
+| **[React Hook Form](https://react-hook-form.com/)** | Performant, flexible, and extensible forms |
+| **[Zod](https://zod.dev/)** | TypeScript-first schema validation |
+| **[jsPDF](https://github.com/parallax/jsPDF) & [AutoTable](https://github.com/simonbengtsson/jsPDF-AutoTable)** | Client-side PDF generation for report cards and receipts |
+| **[Recharts](https://recharts.org/)** | Composable charting library for financial and attendance dashboards |
+
+---
+
+## 📁 Project Structure
+
+A quick glance at the scalable folder structure:
+
+```text
+src/
+├── assets/         # Static images, fonts, etc.
+├── components/     # Reusable UI components (Modals, Tables, Skeletons, Dropdowns)
+├── hooks/          # React Query hooks (useSchools, useStudents, useFees, etc.)
+├── layouts/        # Page layouts (DashboardLayout with Sidebar/Header)
+├── pages/          # Route-based views grouped by User Role
+│   ├── auth/
+│   ├── parent/
+│   ├── school-admin/
+│   ├── student/
+│   ├── super-admin/
+│   └── teacher/
+├── schemas/        # Zod validation schemas
+├── services/       # Axios API configurations and PDF generators
+├── store/          # Zustand global state (Auth state)
+└── types/          # TypeScript interfaces for API payloads
 ```
