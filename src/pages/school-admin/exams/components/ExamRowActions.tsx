@@ -4,16 +4,18 @@ import { MoreVertical, Edit, Trash2 } from 'lucide-react';
 import type { Exam } from '@/types/exam';
 import { useDeleteExam } from '@/hooks/useExams';
 import EditExamModal from './EditExamModal';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 export default function ExamRowActions({ exam }: { exam: Exam }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [menuCoords, setMenuCoords] = useState({ top: 0, left: 0 });
   
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   
-  const { mutate: deleteExam } = useDeleteExam();
+  const { mutate: deleteExam, isPending } = useDeleteExam();
 
   const toggleMenu = () => {
     if (!isOpen && buttonRef.current) {
@@ -56,11 +58,15 @@ export default function ExamRowActions({ exam }: { exam: Exam }) {
     };
   }, [isOpen]);
 
-  const handleDelete = () => {
-    if (window.confirm(`Are you sure you want to delete "${exam.name}"? If any student marks exist for this session, the deletion will be safely blocked.`)) {
-      deleteExam(exam.id);
-    }
+  const handleDeleteClick = () => {
     setIsOpen(false);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteExam(exam.id, {
+      onSettled: () => setIsConfirmOpen(false)
+    });
   };
 
   return (
@@ -94,7 +100,7 @@ export default function ExamRowActions({ exam }: { exam: Exam }) {
               <div className="border-t border-gray-100 my-1"></div>
               
               <button
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 className="group flex w-full items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 font-bold transition-colors"
               >
                 <Trash2 className="mr-3 h-4 w-4 text-red-500" />
@@ -107,6 +113,18 @@ export default function ExamRowActions({ exam }: { exam: Exam }) {
       </div>
 
       <EditExamModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} exam={exam} />
+
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Exam Session"
+        message={<span>Are you sure you want to delete the exam session <strong>"{exam.name}"</strong>? If any student marks exist for this session, the deletion will be safely blocked by the system.</span>}
+        confirmText="Yes, Delete Session"
+        cancelText="Cancel"
+        type="danger"
+        isLoading={isPending}
+      />
     </>
   );
 }

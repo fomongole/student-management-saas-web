@@ -5,11 +5,13 @@ import type { Teacher } from '@/types/teacher';
 import { useDeleteTeacher } from '@/hooks/useTeachers';
 import EditTeacherModal from './EditTeacherModal';
 import AssignSubjectsModal from './AssignSubjectsModal';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 export default function TeacherRowActions({ teacher }: { teacher: Teacher }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   
   // State to hold the exact coordinates for our Portal menu
   const [menuCoords, setMenuCoords] = useState({ top: 0, left: 0 });
@@ -17,7 +19,7 @@ export default function TeacherRowActions({ teacher }: { teacher: Teacher }) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   
-  const { mutate: deleteTeacher } = useDeleteTeacher();
+  const { mutate: deleteTeacher, isPending } = useDeleteTeacher();
 
   const toggleMenu = () => {
     if (!isOpen && buttonRef.current) {
@@ -62,11 +64,15 @@ export default function TeacherRowActions({ teacher }: { teacher: Teacher }) {
     };
   }, [isOpen]);
 
-  const handleDelete = () => {
-    if (window.confirm(`Are you sure you want to permanently remove ${teacher.user.first_name} ${teacher.user.last_name}? Their access will be revoked immediately.`)) {
-      deleteTeacher(teacher.id);
-    }
+  const handleDeleteClick = () => {
     setIsOpen(false);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteTeacher(teacher.id, {
+      onSettled: () => setIsConfirmOpen(false)
+    });
   };
 
   return (
@@ -109,7 +115,7 @@ export default function TeacherRowActions({ teacher }: { teacher: Teacher }) {
               <div className="border-t border-gray-100 my-1"></div>
               
               <button
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 className="group flex w-full items-center px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 font-bold transition-colors"
               >
                 <Trash2 className="mr-3 h-4 w-4 text-red-500" />
@@ -131,6 +137,18 @@ export default function TeacherRowActions({ teacher }: { teacher: Teacher }) {
         isOpen={isAssignModalOpen} 
         onClose={() => setIsAssignModalOpen(false)} 
         teacher={teacher} 
+      />
+
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Remove Staff Member"
+        message={<span>Are you sure you want to permanently remove <strong>{teacher.user.first_name} {teacher.user.last_name}</strong>? Their portal access will be revoked immediately and they will be unassigned from all subjects.</span>}
+        confirmText="Yes, Remove Staff"
+        cancelText="Cancel"
+        type="danger"
+        isLoading={isPending}
       />
     </>
   );

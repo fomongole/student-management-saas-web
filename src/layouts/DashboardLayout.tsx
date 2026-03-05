@@ -9,6 +9,7 @@ import {
 import useAuthStore from '@/store/authStore';
 import type { UserRole } from '@/types/auth';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 // --- NAVIGATION CONFIGURATION ---
 const NAVIGATION_CONFIG: Record<UserRole, Array<{ name: string; href: string; icon: any; section?: string }>> = {
@@ -50,6 +51,7 @@ export default function DashboardLayout() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   
   // Ref for handling clicks outside the profile dropdown
   const profileDropdownRef = useRef<HTMLDivElement>(null);
@@ -80,6 +82,11 @@ export default function DashboardLayout() {
   }, []);
 
   const navItems = user ? NAVIGATION_CONFIG[user.role] : [];
+
+  const handleLogoutConfirm = () => {
+    setIsLogoutConfirmOpen(false);
+    logout();
+  };
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
@@ -143,7 +150,7 @@ export default function DashboardLayout() {
         {/* Logout at bottom of sidebar */}
         <div className="p-4 border-t border-slate-100">
           <button 
-            onClick={logout}
+            onClick={() => setIsLogoutConfirmOpen(true)}
             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition-colors"
           >
             <LogOut className="h-5 w-5" />
@@ -209,7 +216,10 @@ export default function DashboardLayout() {
                   </div>
                   <div className="border-t border-slate-50 m-2"></div>
                   <div className="p-2">
-                    <button onClick={logout} className="w-full text-left px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl flex items-center gap-3 transition-colors">
+                    <button 
+                      onClick={() => { setIsProfileOpen(false); setIsLogoutConfirmOpen(true); }} 
+                      className="w-full text-left px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl flex items-center gap-3 transition-colors"
+                    >
                       <LogOut className="h-4 w-4" />
                       Log Out
                     </button>
@@ -226,8 +236,18 @@ export default function DashboardLayout() {
             <Outlet />
           </div>
         </main>
-
       </div>
+
+      <ConfirmDialog
+        isOpen={isLogoutConfirmOpen}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+        onConfirm={handleLogoutConfirm}
+        title="Sign Out"
+        message="Are you sure you want to log out of your account? You will need to enter your credentials to access the platform again."
+        confirmText="Yes, Sign Out"
+        cancelText="Cancel"
+        type="warning"
+      />
     </div>
   );
 }

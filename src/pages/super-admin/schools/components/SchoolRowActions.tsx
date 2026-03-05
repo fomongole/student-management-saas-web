@@ -5,25 +5,28 @@ import type { School } from '@/types/school';
 import { useUpdateSchool } from '@/hooks/useSchools';
 import SchoolAdminModal from './SchoolAdminModal';
 import SchoolLevelsModal from './SchoolLevelsModal';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 export default function SchoolRowActions({ school }: { school: School }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isLevelsModalOpen, setIsLevelsModalOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [menuCoords, setMenuCoords] = useState({ top: 0, left: 0 });
 
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const { mutate: updateSchool } = useUpdateSchool();
+  // Extract isPending so we can pass it to the ConfirmDialog's loading state
+  const { mutate: updateSchool, isPending } = useUpdateSchool();
 
   const toggleMenu = () => {
     if (!isOpen && buttonRef.current) {
       const rect = buttonRef.current.getBoundingClientRect();
-      // w-52 = 208px
+      // w-56 = 224px (Polished to match the other dropdowns)
       setMenuCoords({
         top: rect.bottom + window.scrollY + 4,
-        left: rect.right + window.scrollX - 208, 
+        left: rect.right + window.scrollX - 224, 
       });
       setIsOpen(true);
     } else {
@@ -58,9 +61,16 @@ export default function SchoolRowActions({ school }: { school: School }) {
     };
   }, [isOpen]);
 
-  const handleToggleStatus = () => {
-    updateSchool({ id: school.id, data: { is_active: !school.is_active } });
+  const handleStatusClick = () => {
     setIsOpen(false);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmStatusChange = () => {
+    updateSchool(
+      { id: school.id, data: { is_active: !school.is_active } },
+      { onSettled: () => setIsConfirmOpen(false) }
+    );
   };
 
   return (
@@ -69,7 +79,9 @@ export default function SchoolRowActions({ school }: { school: School }) {
         <button
           ref={buttonRef}
           onClick={toggleMenu}
-          className="p-1 text-gray-400 hover:text-gray-900 transition-colors rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          aria-haspopup="true"
+          aria-expanded={isOpen}
+          className="p-1.5 text-gray-400 hover:text-gray-900 transition-colors rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           <MoreVertical className="h-5 w-5" />
         </button>
@@ -78,41 +90,47 @@ export default function SchoolRowActions({ school }: { school: School }) {
           <div 
             ref={menuRef}
             style={{ top: menuCoords.top, left: menuCoords.left }}
-            className="absolute z-[9999] w-52 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 animate-in fade-in zoom-in-95 duration-100 origin-top-right"
+            className="absolute z-[9999] w-56 rounded-xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 animate-in fade-in zoom-in-95 duration-100 origin-top-right"
           >
             <div className="py-1">
 
               {/* Assign Admin */}
               <button
                 onClick={() => { setIsOpen(false); setIsAdminModalOpen(true); }}
-                className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                className="group flex w-full items-center px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                <UserPlus className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-500" />
+                <UserPlus className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-600 transition-colors" />
                 Assign Admin
               </button>
 
               {/* Update Academic Levels */}
               <button
                 onClick={() => { setIsOpen(false); setIsLevelsModalOpen(true); }}
-                className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                className="group flex w-full items-center px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                <GraduationCap className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-500" />
+                <GraduationCap className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-600 transition-colors" />
                 Update Levels
               </button>
 
+              <div className="border-t border-gray-100 my-1"></div>
+
               {/* Suspend / Activate */}
               <button
-                onClick={handleToggleStatus}
-                className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                onClick={handleStatusClick}
+                className={`group flex w-full items-center px-4 py-2.5 text-sm font-bold transition-colors ${
+                  school.is_active 
+                    ? 'text-red-600 hover:bg-red-50' 
+                    : 'text-emerald-600 hover:bg-emerald-50'
+                }`}
               >
                 {school.is_active ? (
                   <>
-                    <PowerOff className="mr-3 h-4 w-4 text-gray-400 group-hover:text-red-500" />
+                    <PowerOff className="mr-3 h-4 w-4 text-red-500" />
                     Suspend School
                   </>
                 ) : (
                   <>
-                    <Power className="mr-3 h-4 w-4 text-gray-400 group-hover:text-green-500" />
+                    <Power className="mr-3 h-4 w-4 text-emerald-500" />
                     Activate School
                   </>
                 )}
@@ -133,6 +151,26 @@ export default function SchoolRowActions({ school }: { school: School }) {
         isOpen={isLevelsModalOpen}
         onClose={() => setIsLevelsModalOpen(false)}
         school={school}
+      />
+
+      {/* Dynamic Confirmation Dialog for Suspend/Activate */}
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmStatusChange}
+        title={school.is_active ? "Suspend School Account" : "Activate School Account"}
+        message={
+          <span>
+            Are you sure you want to {school.is_active ? 'suspend' : 'activate'} <strong>{school.name}</strong>? 
+            {school.is_active 
+              ? " All users associated with this school will lose platform access immediately." 
+              : " Users will regain full access to the platform."}
+          </span>
+        }
+        confirmText={school.is_active ? "Yes, Suspend" : "Yes, Activate"}
+        cancelText="Cancel"
+        type={school.is_active ? "danger" : "info"}
+        isLoading={isPending}
       />
     </>
   );

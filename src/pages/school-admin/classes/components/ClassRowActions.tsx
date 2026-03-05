@@ -4,16 +4,18 @@ import { MoreVertical, Edit, Trash2 } from 'lucide-react';
 import type { Class } from '@/types/class';
 import { useDeleteClass } from '@/hooks/useClasses';
 import EditClassModal from './EditClassModal';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 export default function ClassRowActions({ classData }: { classData: Class }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [menuCoords, setMenuCoords] = useState({ top: 0, left: 0 });
   
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   
-  const { mutate: deleteClass } = useDeleteClass();
+  const { mutate: deleteClass, isPending } = useDeleteClass();
 
   const toggleMenu = () => {
     if (!isOpen && buttonRef.current) {
@@ -56,11 +58,15 @@ export default function ClassRowActions({ classData }: { classData: Class }) {
     };
   }, [isOpen]);
 
-  const handleDelete = () => {
-    if (window.confirm(`Are you sure you want to delete ${classData.name}?`)) {
-      deleteClass(classData.id);
-    }
+  const handleDeleteClick = () => {
     setIsOpen(false);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteClass(classData.id, {
+      onSettled: () => setIsConfirmOpen(false)
+    });
   };
 
   return (
@@ -84,7 +90,7 @@ export default function ClassRowActions({ classData }: { classData: Class }) {
               <button onClick={() => { setIsOpen(false); setIsEditModalOpen(true); }} className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                 <Edit className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-500" /> Edit Info
               </button>
-              <button onClick={handleDelete} className="group flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+              <button onClick={handleDeleteClick} className="group flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                 <Trash2 className="mr-3 h-4 w-4 text-red-500" /> Delete
               </button>
             </div>
@@ -94,6 +100,18 @@ export default function ClassRowActions({ classData }: { classData: Class }) {
       </div>
 
       <EditClassModal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} classData={classData} />
+
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Class"
+        message={<span>Are you sure you want to delete the class <strong>{classData.name}</strong>? All associated schedules will be removed. This action cannot be undone.</span>}
+        confirmText="Yes, Delete Class"
+        cancelText="Cancel"
+        type="danger"
+        isLoading={isPending}
+      />
     </>
   );
 }

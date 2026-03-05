@@ -4,16 +4,18 @@ import { MoreVertical, Edit, Trash2 } from 'lucide-react';
 import type { Parent } from '@/types/parent';
 import { useDeleteParent } from '@/hooks/useParents';
 import EditParentModal from './EditParentModal';
+import ConfirmDialog from '@/components/ui/ConfirmDialog';
 
 export default function ParentRowActions({ parent }: { parent: Parent }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [menuCoords, setMenuCoords] = useState({ top: 0, left: 0 });
   
   const buttonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   
-  const { mutate: deleteParent } = useDeleteParent();
+  const { mutate: deleteParent, isPending } = useDeleteParent();
 
   const toggleMenu = () => {
     if (!isOpen && buttonRef.current) {
@@ -56,11 +58,15 @@ export default function ParentRowActions({ parent }: { parent: Parent }) {
     };
   }, [isOpen]);
 
-  const handleDelete = () => {
-    if (window.confirm(`Are you sure you want to permanently delete ${parent.first_name} ${parent.last_name}? This will revoke their portal access immediately.`)) {
-      deleteParent(parent.id);
-    }
+  const handleDeleteClick = () => {
     setIsOpen(false);
+    setIsConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteParent(parent.id, {
+      onSettled: () => setIsConfirmOpen(false)
+    });
   };
 
   return (
@@ -92,7 +98,7 @@ export default function ParentRowActions({ parent }: { parent: Parent }) {
               <div className="border-t border-gray-100 my-1"></div>
               
               <button
-                onClick={handleDelete}
+                onClick={handleDeleteClick}
                 className="group flex w-full items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-medium transition-colors"
               >
                 <Trash2 className="mr-3 h-4 w-4 text-red-500" />
@@ -108,6 +114,18 @@ export default function ParentRowActions({ parent }: { parent: Parent }) {
         isOpen={isEditModalOpen} 
         onClose={() => setIsEditModalOpen(false)} 
         parent={parent} 
+      />
+
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Remove Parent Access"
+        message={<span>Are you sure you want to permanently delete <strong>{parent.first_name} {parent.last_name}</strong>? This will revoke their portal access immediately. This action cannot be undone.</span>}
+        confirmText="Yes, Remove Access"
+        cancelText="Cancel"
+        type="danger"
+        isLoading={isPending}
       />
     </>
   );
