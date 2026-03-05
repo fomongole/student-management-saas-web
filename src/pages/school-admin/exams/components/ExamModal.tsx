@@ -2,7 +2,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, X } from 'lucide-react';
 
-import { createExamSchema, type CreateExamFormValues } from '@/schemas/academic.schema';
+import { 
+  createExamSchema, 
+  type CreateExamFormValues, 
+  type CreateExamFormInput
+} from '@/schemas/academic.schema';
 import { useCreateExam } from '@/hooks/useExams';
 import { useSubjects } from '@/hooks/useSubjects';
 
@@ -15,11 +19,17 @@ export default function ExamModal({ isOpen, onClose }: ExamModalProps) {
   const { mutate: createExam, isPending } = useCreateExam();
   const { data: subjects, isLoading: isLoadingSubjects } = useSubjects();
 
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<CreateExamFormValues>({
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<
+    CreateExamFormInput, 
+    any, 
+    CreateExamFormValues
+  >({
     resolver: zodResolver(createExamSchema),
     defaultValues: {
+      name: '',
       year: new Date().getFullYear(),
       term: 1,
+      subject_id: '',
     }
   });
 
@@ -82,7 +92,7 @@ export default function ExamModal({ isOpen, onClose }: ExamModalProps) {
 
             <div className="flex justify-end space-x-3 border-t pt-4 mt-6">
               <button type="button" onClick={onClose} className="rounded-md border px-4 py-2 text-sm">Cancel</button>
-              <button type="submit" disabled={isPending} className="flex rounded-md bg-primary-600 px-4 py-2 text-sm text-white">
+              <button type="submit" disabled={isPending} className="flex rounded-md bg-primary-600 px-4 py-2 text-sm text-white transition-colors hover:bg-primary-700">
                 {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Create Exam
               </button>
             </div>
