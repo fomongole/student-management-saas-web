@@ -41,7 +41,7 @@ export default function NotificationsDropdown() {
     if (!isRead) markAsRead(id);
   };
 
-  const getNotificationStyles = (type: string, is_read: boolean) => {
+  const getNotificationStyles = (type: string) => {
     switch(type) {
       case 'ALERT': 
         return { icon: <AlertCircle className="h-4 w-4" />, color: 'text-red-600', bg: 'bg-red-50' };
@@ -105,7 +105,7 @@ export default function NotificationsDropdown() {
             ) : (
               <ul className="divide-y divide-slate-50">
                 {notifications.map((notification) => {
-                  const styles = getNotificationStyles(notification.type, notification.is_read);
+                  const styles = getNotificationStyles(notification.type);
                   return (
                     <li 
                       key={notification.id}
