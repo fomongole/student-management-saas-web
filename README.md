@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://via.placeholder.com/150x150/4f46e5/ffffff?text=E" alt="Elimu Logo" width="100" height="100" />
+  <img src="./public/logo.jpg" alt="Elimu Logo" width="120" height="120" />
 
   <br />
   <br />
@@ -30,7 +30,10 @@
 
 **Elimu** is a cloud-based, multi-tenant SaaS application designed to digitize and streamline school operations. Built with a deep understanding of the **Ugandan Education System** (Nursery, P1-P7, O-Level, A-Level Sciences/Arts), it natively supports complex class streaming, UNEB grading structures, automated report card generation, and secure financial ledgers.
 
-This repository contains the **Frontend Client Application**, which connects to a high-performance Python/FastAPI backend.
+This repository contains the **Frontend Client Application**, which connects to our high-performance Python/FastAPI backend.
+
+🔗 **Backend Repository:** [**student-management-saas-api**](https://github.com/fomongole/student-management-saas-api)  
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=flat-square&logo=fastapi) ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat-square&logo=postgresql&logoColor=white)
 
 ---
 
