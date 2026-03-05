@@ -1,5 +1,3 @@
-// src/components/ui/Skeleton.tsx
-
 interface SkeletonProps {
   className?: string;
 }
@@ -7,7 +5,7 @@ interface SkeletonProps {
 export function Skeleton({ className = '' }: SkeletonProps) {
   return (
     <div 
-      className={`animate-pulse bg-gray-200 rounded-md ${className}`} 
+      className={`animate-pulse bg-gray-100 border border-gray-50 rounded-xl ${className}`} 
       aria-hidden="true"
     />
   );

@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Bell, Check, Clock, Mail, AlertCircle, Inbox, Info, CheckCircle2 } from 'lucide-react';
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '@/hooks/useNotifications';
 
-// --- 2. UTILS ---
+// --- UTILS ---
 function timeAgo(dateString: string) {
   const date = new Date(dateString);
   const now = new Date();
@@ -16,7 +16,6 @@ function timeAgo(dateString: string) {
 }
 
 export default function NotificationsDropdown() {
-  // --- 3. STATE & DATA ---
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -26,7 +25,7 @@ export default function NotificationsDropdown() {
 
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
 
-  // --- 4. CLICK OUTSIDE HANDLER ---
+  // --- CLICK OUTSIDE HANDLER ---
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -37,13 +36,12 @@ export default function NotificationsDropdown() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // --- 5. LOGIC HELPERS ---
+  // --- LOGIC HELPERS ---
   const handleNotificationClick = (id: string, isRead: boolean) => {
     if (!isRead) markAsRead(id);
   };
 
-  // Categorize icons by Intent, not just delivery method
-  const getNotificationStyles = (type: string, isRead: boolean) => {
+  const getNotificationStyles = (type: string, is_read: boolean) => {
     switch(type) {
       case 'ALERT': 
         return { icon: <AlertCircle className="h-4 w-4" />, color: 'text-red-600', bg: 'bg-red-50' };
@@ -73,7 +71,7 @@ export default function NotificationsDropdown() {
 
       {/* DROPDOWN PANEL */}
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 z-50 overflow-hidden flex flex-col max-h-[500px] animate-in fade-in zoom-in-95 duration-200 origin-top-right">
+        <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl ring-1 ring-slate-200 z-50 overflow-hidden flex flex-col max-h-[80vh] animate-in fade-in zoom-in-95 duration-200 origin-top-right">
           
           {/* HEADER */}
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
@@ -123,11 +121,12 @@ export default function NotificationsDropdown() {
                         {/* Text Content */}
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start mb-1">
-                            <p className={`text-sm leading-tight ${!notification.is_read ? 'font-bold text-slate-900' : 'font-medium text-slate-600'}`}>
+                            {/* Reduced unread text weight slightly for less visual clutter */}
+                            <p className={`text-sm leading-tight ${!notification.is_read ? 'font-semibold text-slate-900' : 'font-medium text-slate-600'}`}>
                               {notification.title}
                             </p>
                             {!notification.is_read && (
-                              <span className="h-2 w-2 rounded-full bg-primary-500 mt-1 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                              <span className="h-2 w-2 rounded-full bg-primary-500 mt-1 shadow-[0_0_8px_rgba(59,130,246,0.5)] flex-shrink-0" />
                             )}
                           </div>
                           <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
@@ -156,8 +155,9 @@ export default function NotificationsDropdown() {
 
           {/* FOOTER */}
           <div className="p-3 bg-slate-50/50 border-t border-slate-100 text-center">
-            <button className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] hover:text-primary-600 transition-colors">
-              Archives & History
+            {/* Fixed the tiny footer text to be a usable link size */}
+            <button className="text-sm font-semibold text-slate-500 hover:text-primary-600 transition-colors">
+              View All Archives
             </button>
           </div>
         </div>

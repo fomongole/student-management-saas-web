@@ -69,15 +69,15 @@ export default function AssignSubjectsModal({ isOpen, onClose, teacher }: Assign
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
-      <div className="relative w-full max-w-2xl rounded-xl bg-white shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         <div className="flex items-center justify-between border-b border-gray-100 p-6 bg-gray-50/50">
           <div>
-            <h3 className="text-xl font-bold text-gray-900">Assign Curriculum</h3>
-            <p className="text-sm text-gray-500 mt-0.5">
-              Managing subjects for <span className="font-semibold text-primary-700">{teacher.user.first_name} {teacher.user.last_name}</span>
+            <h3 className="text-xl font-black text-gray-900 tracking-tight">Assign Curriculum</h3>
+            <p className="text-sm font-medium text-gray-500 mt-1">
+              Managing subjects for <span className="font-bold text-primary-700">{teacher.user.first_name} {teacher.user.last_name}</span>
             </p>
           </div>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full transition-colors">
+          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -87,11 +87,11 @@ export default function AssignSubjectsModal({ isOpen, onClose, teacher }: Assign
             <input type="hidden" {...register('teacher_id')} />
             
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search by subject name or code..."
-                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all"
+                className="w-full pl-11 pr-4 py-3 text-sm font-medium border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none transition-all bg-gray-50 text-gray-900"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -99,16 +99,15 @@ export default function AssignSubjectsModal({ isOpen, onClose, teacher }: Assign
 
             <div className="relative min-h-[300px]">
               {isLoadingSubjects ? (
-                <div className="absolute inset-0 flex flex-col items-center justify-center space-y-3">
+                <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4">
                   <Loader2 className="h-8 w-8 animate-spin text-primary-600" />
-                  <p className="text-sm text-gray-500 font-medium">Loading school curriculum...</p>
+                  <p className="text-sm text-gray-500 font-bold">Loading school curriculum...</p>
                 </div>
               ) : (
                 <Controller
                   name="subject_ids"
                   control={control}
                   render={({ field }) => {
-                    // 3. Explicitly cast field.value as string[] to resolve the "Property includes/filter does not exist" error
                     const selectedSubjectIds = (field.value as string[]) || [];
                     
                     return (
@@ -121,7 +120,7 @@ export default function AssignSubjectsModal({ isOpen, onClose, teacher }: Assign
                               return (
                                 <label
                                   key={subject.id}
-                                  className={`relative flex items-center space-x-3 rounded-xl border p-4 cursor-pointer transition-all duration-200 ${
+                                  className={`relative flex items-center space-x-3 rounded-xl border p-4 cursor-pointer transition-all duration-200 focus-within:ring-2 focus-within:ring-primary-500 focus-within:ring-offset-1 ${
                                     isSelected ? 'border-primary-600 bg-primary-50 ring-1 ring-primary-600' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                                   }`}
                                 >
@@ -135,41 +134,41 @@ export default function AssignSubjectsModal({ isOpen, onClose, teacher }: Assign
                                         field.onChange(selectedSubjectIds.filter((id) => id !== subject.id));
                                       }
                                     }}
-                                    className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 transition-colors"
+                                    className="h-5 w-5 rounded border-gray-300 text-primary-600 focus:ring-primary-500 transition-colors cursor-pointer outline-none"
                                   />
                                   <div className="flex flex-col min-w-0">
                                     <span className={`text-sm font-bold truncate ${isSelected ? 'text-primary-900' : 'text-gray-900'}`}>
                                       {subject.name}
                                     </span>
-                                    <div className="flex items-center space-x-2">
-                                      <span className="text-[10px] font-mono text-gray-500 px-1.5 py-0.5 bg-gray-100 rounded">{subject.code}</span>
-                                      <span className="text-[10px] text-gray-400 uppercase tracking-tight">{subject.level.replace('_', ' ')}</span>
+                                    <div className="flex items-center space-x-2 mt-1">
+                                      <span className="text-[10px] font-black tracking-widest text-gray-500 px-1.5 py-0.5 bg-gray-100 rounded uppercase">{subject.code}</span>
+                                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{subject.level.replace('_', ' ')}</span>
                                     </div>
                                   </div>
-                                  {isSelected && <CheckCircle2 className="absolute top-2 right-2 h-4 w-4 text-primary-600" />}
+                                  {isSelected && <CheckCircle2 className="absolute top-2 right-2 h-5 w-5 text-primary-600 drop-shadow-sm" />}
                                 </label>
                               );
                             })
                           ) : (
                             <div className="col-span-full py-20 text-center">
-                              <BookOpen className="h-10 w-10 text-gray-200 mx-auto mb-3" />
-                              <p className="text-gray-500 text-sm">No subjects found matching "{searchTerm}"</p>
+                              <BookOpen className="h-12 w-12 text-gray-200 mx-auto mb-3" />
+                              <p className="text-gray-500 text-sm font-medium">No subjects found matching "{searchTerm}"</p>
                             </div>
                           )}
                         </div>
                         
-                        <div className="flex items-center justify-between border-t border-gray-100 pt-6 mt-4">
-                          <div className="text-sm text-gray-500">
-                            <span className="font-semibold text-gray-900">{selectedSubjectIds.length}</span> subjects selected
+                        <div className="flex items-center justify-between border-t border-gray-100 pt-6 mt-6">
+                          <div className="text-sm font-medium text-gray-500">
+                            <span className="font-black text-gray-900 text-lg mr-1">{selectedSubjectIds.length}</span> subjects selected
                           </div>
                           <div className="flex space-x-3">
-                            <button type="button" onClick={onClose} className="px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                            <button type="button" onClick={onClose} className="px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-100 rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200">
                               Cancel
                             </button>
                             <button
                               type="submit"
                               disabled={isPending || isLoadingSubjects}
-                              className="flex items-center justify-center min-w-[160px] rounded-lg bg-primary-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary-200 hover:bg-primary-700 disabled:opacity-50 transition-all"
+                              className="flex items-center justify-center min-w-[160px] rounded-xl bg-primary-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary-200 hover:bg-primary-700 disabled:opacity-50 transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
                             >
                               {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <BookOpen className="mr-2 h-4 w-4" />}
                               Save Assignments

@@ -1,5 +1,4 @@
-// --- 1. IMPORTS ---
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, Building2, Users, GraduationCap, BookOpen,
@@ -11,8 +10,7 @@ import useAuthStore from '@/store/authStore';
 import type { UserRole } from '@/types/auth';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
 
-// --- 2. NAVIGATION CONFIGURATION ---
-// Grouped for better UX scannability
+// --- NAVIGATION CONFIGURATION ---
 const NAVIGATION_CONFIG: Record<UserRole, Array<{ name: string; href: string; icon: any; section?: string }>> = {
   SUPER_ADMIN: [
     { name: 'Platform Overview', href: '/dashboard', icon: LayoutDashboard },
@@ -52,13 +50,41 @@ export default function DashboardLayout() {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  
+  // Ref for handling clicks outside the profile dropdown
+  const profileDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Handle outside clicks & Esc key for menus
+  useEffect(() => {
+    function handleInteraction(event: MouseEvent | KeyboardEvent) {
+      if (event.type === 'keydown' && (event as KeyboardEvent).key === 'Escape') {
+        setIsProfileOpen(false);
+        setIsMobileMenuOpen(false);
+        return;
+      }
+      if (
+        event.type === 'mousedown' && 
+        profileDropdownRef.current && 
+        !profileDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileOpen(false);
+      }
+    }
+    
+    document.addEventListener('mousedown', handleInteraction);
+    document.addEventListener('keydown', handleInteraction);
+    return () => {
+      document.removeEventListener('mousedown', handleInteraction);
+      document.removeEventListener('keydown', handleInteraction);
+    };
+  }, []);
 
   const navItems = user ? NAVIGATION_CONFIG[user.role] : [];
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
       
-      {/* --- 3. MOBILE SIDEBAR OVERLAY --- */}
+      {/* MOBILE SIDEBAR OVERLAY */}
       {isMobileMenuOpen && (
         <div 
           className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden transition-all"
@@ -66,7 +92,7 @@ export default function DashboardLayout() {
         />
       )}
 
-      {/* --- 4. SIDEBAR NAVIGATION --- */}
+      {/* SIDEBAR NAVIGATION */}
       <aside className={`
         fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col shadow-2xl shadow-slate-200/50 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
@@ -88,9 +114,9 @@ export default function DashboardLayout() {
         <nav className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
           {navItems.map((item) => (
             <div key={item.name}>
-              {/* Optional Section Header */}
+              {/* Increased font size to text-xs for accessibility/readability */}
               {item.section && (
-                <p className="mt-6 mb-2 ml-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <p className="mt-6 mb-2 ml-3 text-xs font-black uppercase tracking-widest text-slate-400">
                   {item.section}
                 </p>
               )}
@@ -126,10 +152,10 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
-      {/* --- 5. MAIN CONTENT AREA --- */}
+      {/* MAIN CONTENT AREA */}
       <div className="flex-1 flex flex-col overflow-hidden w-full">
         
-        {/* --- 6. TOP HEADER --- */}
+        {/* TOP HEADER */}
         <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30">
           
           <button 
@@ -144,8 +170,8 @@ export default function DashboardLayout() {
 
             <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block"></div>
 
-            {/* Profile Menu */}
-            <div className="relative">
+            {/* Profile Menu Container with Ref */}
+            <div className="relative" ref={profileDropdownRef}>
               <button 
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-3 p-1 rounded-full hover:bg-slate-50 transition-all focus:outline-none"
@@ -166,40 +192,36 @@ export default function DashboardLayout() {
 
               {/* Profile Dropdown */}
               {isProfileOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)}></div>
-                  <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl shadow-slate-200/60 ring-1 ring-slate-200 py-2 z-50 animate-in fade-in zoom-in duration-150">
-                    <div className="px-5 py-4 border-b border-slate-50">
-                      <p className="text-sm font-bold text-slate-900">{user?.first_name} {user?.last_name}</p>
-                      <p className="text-xs text-slate-400 truncate mt-0.5">{user?.email}</p>
-                    </div>
-                    <div className="p-2">
-                      <button className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl flex items-center gap-3 transition-colors">
-                        <UserIcon className="h-4 w-4 text-slate-400" />
-                        Account Profile
-                      </button>
-                      <button className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl flex items-center gap-3 transition-colors">
-                        <Settings className="h-4 w-4 text-slate-400" />
-                        Preferences
-                      </button>
-                    </div>
-                    <div className="border-t border-slate-50 m-2"></div>
-                    <div className="p-2">
-                      <button onClick={logout} className="w-full text-left px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl flex items-center gap-3 transition-colors">
-                        <LogOut className="h-4 w-4" />
-                        Log Out
-                      </button>
-                    </div>
+                <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl shadow-slate-200/60 ring-1 ring-slate-200 py-2 z-50 animate-in fade-in zoom-in duration-150">
+                  <div className="px-5 py-4 border-b border-slate-50">
+                    <p className="text-sm font-bold text-slate-900">{user?.first_name} {user?.last_name}</p>
+                    <p className="text-xs text-slate-400 truncate mt-0.5">{user?.email}</p>
                   </div>
-                </>
+                  <div className="p-2">
+                    <button className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl flex items-center gap-3 transition-colors">
+                      <UserIcon className="h-4 w-4 text-slate-400" />
+                      Account Profile
+                    </button>
+                    <button className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl flex items-center gap-3 transition-colors">
+                      <Settings className="h-4 w-4 text-slate-400" />
+                      Preferences
+                    </button>
+                  </div>
+                  <div className="border-t border-slate-50 m-2"></div>
+                  <div className="p-2">
+                    <button onClick={logout} className="w-full text-left px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl flex items-center gap-3 transition-colors">
+                      <LogOut className="h-4 w-4" />
+                      Log Out
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
           </div>
         </header>
 
-        {/* --- 7. CONTENT VIEWPORT --- */}
+        {/* CONTENT VIEWPORT */}
         <main className="flex-1 overflow-auto bg-[#F8FAFC] p-4 sm:p-8">
-          {/* Internal shadow to give "depth" to the main area */}
           <div className="max-w-[1600px] mx-auto">
             <Outlet />
           </div>
