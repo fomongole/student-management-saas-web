@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Save, ArrowRight, BookOpen, FileText, Users, AlertCircle } from 'lucide-react';
+import { Loader2, Save, BookOpen, FileText, Users, AlertCircle } from 'lucide-react';
 import { useExams, useMarkSheet, useSubmitMarks } from '@/hooks/useExams';
 import { useClasses } from '@/hooks/useClasses';
 import { useSubjects } from '@/hooks/useSubjects';
