@@ -1,46 +1,36 @@
+// --- 1. IMPORTS ---
 import { useState } from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
+import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
-  Building2, 
-  Users, 
-  GraduationCap, 
-  BookOpen,
-  LogOut,
-  Menu,
-  X,
-  ChevronDown,
-  User as UserIcon,
-  Settings,
-  UserPlus,
-  Settings2,
-  FileText,
-  FileSpreadsheet,
-  Banknote,
-  CalendarCheck
+  LayoutDashboard, Building2, Users, GraduationCap, BookOpen,
+  LogOut, Menu, X, ChevronDown, User as UserIcon, Settings,
+  UserPlus, Settings2, FileText, FileSpreadsheet, Banknote,
+  CalendarCheck, Shield
 } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import type { UserRole } from '@/types/auth';
 import NotificationsDropdown from '@/components/NotificationsDropdown';
 
-const NAVIGATION_CONFIG: Record<UserRole, Array<{ name: string; href: string; icon: any }>> = {
+// --- 2. NAVIGATION CONFIGURATION ---
+// Grouped for better UX scannability
+const NAVIGATION_CONFIG: Record<UserRole, Array<{ name: string; href: string; icon: any; section?: string }>> = {
   SUPER_ADMIN: [
     { name: 'Platform Overview', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Manage Schools', href: '/dashboard/schools', icon: Building2 },
   ],
   SCHOOL_ADMIN: [
-    { name: 'School Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Staff Directory', href: '/dashboard/teachers', icon: Users },
+    { section: 'Overview', name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { section: 'People', name: 'Staff Directory', href: '/dashboard/teachers', icon: Users },
     { name: 'Student Roster', href: '/dashboard/students', icon: GraduationCap },
-    { name: 'Daily Attendance', href: '/dashboard/attendance', icon: CalendarCheck },
     { name: 'Parent Directory', href: '/dashboard/parents', icon: UserPlus }, 
-    { name: 'Academics (Classes)', href: '/dashboard/academics', icon: Building2 },
-    { name: 'Curriculum (Subjects)', href: '/dashboard/subjects', icon: BookOpen },
-    { name: 'Exam Sessions', href: '/dashboard/exams', icon: FileText },
-    { name: 'Mark Sheets Entry', href: '/dashboard/mark-sheets', icon: FileSpreadsheet },
+    { section: 'Academic', name: 'Attendance', href: '/dashboard/attendance', icon: CalendarCheck },
+    { name: 'Classes', href: '/dashboard/academics', icon: Building2 },
+    { name: 'Subjects', href: '/dashboard/subjects', icon: BookOpen },
+    { section: 'Exams & Grades', name: 'Sessions', href: '/dashboard/exams', icon: FileText },
+    { name: 'Mark Sheets', href: '/dashboard/mark-sheets', icon: FileSpreadsheet },
     { name: 'Grading System', href: '/dashboard/grading', icon: Settings2 },
-    { name: 'Fee Structures', href: '/dashboard/fees', icon: Banknote },
-    { name: 'System Settings', href: '/dashboard/settings', icon: Settings }
+    { section: 'Finance', name: 'Fee Structures', href: '/dashboard/fees', icon: Banknote },
+    { section: 'System', name: 'Settings', href: '/dashboard/settings', icon: Settings }
   ],
   TEACHER: [
     { name: 'My Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -59,150 +49,160 @@ const NAVIGATION_CONFIG: Record<UserRole, Array<{ name: string; href: string; ic
 
 export default function DashboardLayout() {
   const { user, logout } = useAuthStore();
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const navItems = user ? NAVIGATION_CONFIG[user.role] : [];
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden relative">
+    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
       
-      {/* --- MOBILE OVERLAY --- */}
+      {/* --- 3. MOBILE SIDEBAR OVERLAY --- */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 md:hidden transition-opacity"
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden transition-all"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
-      {/* --- SIDEBAR --- */}
+      {/* --- 4. SIDEBAR NAVIGATION --- */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0
+        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col shadow-2xl shadow-slate-200/50 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        {/* Logo Area */}
-        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-primary-600 tracking-tight">Elimu.</h1>
-          {/* Close Menu Button (Mobile Only) */}
-          <button 
-            className="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
-            onClick={() => setIsMobileMenuOpen(false)}
-          >
+        {/* Logo Branding */}
+        <div className="h-20 flex items-center justify-between px-6">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center shadow-lg shadow-primary-200">
+              <Shield className="h-5 w-5 text-white" />
+            </div>
+            <h1 className="text-xl font-black text-slate-900 tracking-tight">Elimu.</h1>
+          </div>
+          <button className="md:hidden p-1 text-slate-400" onClick={() => setIsMobileMenuOpen(false)}>
             <X className="h-6 w-6" />
           </button>
         </div>
 
-        {/* Navigation Links */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        {/* Dynamic Nav List */}
+        <nav className="flex-1 overflow-y-auto px-4 py-4 custom-scrollbar">
           {navItems.map((item) => (
-            <NavLink
-              key={item.name}
-              to={item.href}
-              end={item.href === '/dashboard'}
-              onClick={() => setIsMobileMenuOpen(false)} // Auto-close mobile menu on click
-              className={({ isActive }) =>
-                `group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                  isActive
-                    ? 'bg-primary-50 text-primary-700'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                }`
-              }
-            >
-              <item.icon className={`mr-3 h-5 w-5 flex-shrink-0 ${location.pathname === item.href ? 'text-primary-700' : 'text-gray-400 group-hover:text-gray-500'}`} />
-              {item.name}
-            </NavLink>
+            <div key={item.name}>
+              {/* Optional Section Header */}
+              {item.section && (
+                <p className="mt-6 mb-2 ml-3 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  {item.section}
+                </p>
+              )}
+              <NavLink
+                to={item.href}
+                end={item.href === '/dashboard'}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={({ isActive }) => `
+                  group flex items-center px-3 py-2.5 my-0.5 text-sm font-semibold rounded-xl transition-all duration-200
+                  ${isActive 
+                    ? 'bg-primary-600 text-white shadow-md shadow-primary-200 active-nav-glow' 
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-primary-600'}
+                `}
+              >
+                <item.icon className={`mr-3 h-5 w-5 flex-shrink-0 transition-colors ${
+                  location.pathname === item.href ? 'text-white' : 'text-slate-400 group-hover:text-primary-600'
+                }`} />
+                {item.name}
+              </NavLink>
+            </div>
           ))}
         </nav>
+
+        {/* Logout at bottom of sidebar */}
+        <div className="p-4 border-t border-slate-100">
+          <button 
+            onClick={logout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
+            Sign Out
+          </button>
+        </div>
       </aside>
 
-      {/* --- MAIN CONTENT WRAPPER --- */}
+      {/* --- 5. MAIN CONTENT AREA --- */}
       <div className="flex-1 flex flex-col overflow-hidden w-full">
         
-        {/* --- TOP HEADER --- */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 relative z-30">
+        {/* --- 6. TOP HEADER --- */}
+        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-30">
           
-          {/* Mobile Menu Button */}
           <button 
-            className="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none"
+            className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
             onClick={() => setIsMobileMenuOpen(true)}
           >
             <Menu className="h-6 w-6" />
           </button>
 
-          {/* Right Side Header Items */}
-          <div className="ml-auto flex items-center space-x-2 sm:space-x-4">
-            
+          <div className="ml-auto flex items-center gap-3 sm:gap-5">
             <NotificationsDropdown />
 
-            <div className="h-6 w-px bg-gray-200 mx-1 sm:mx-2 hidden sm:block"></div>
+            <div className="h-8 w-px bg-slate-200 mx-1 hidden sm:block"></div>
 
-            {/* Profile Dropdown Container */}
+            {/* Profile Menu */}
             <div className="relative">
               <button 
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
-                className="flex items-center gap-2 p-1.5 rounded-md hover:bg-gray-50 transition-colors focus:outline-none"
+                className="flex items-center gap-3 p-1 rounded-full hover:bg-slate-50 transition-all focus:outline-none"
               >
-                <div className="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-sm">
-                  {user?.first_name.charAt(0)}{user?.last_name.charAt(0)}
-                </div>
-                <div className="text-left hidden sm:block">
-                  <p className="text-sm font-medium text-gray-900 leading-none">
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-bold text-slate-900 leading-none">
                     {user?.first_name} {user?.last_name}
                   </p>
+                  <p className="text-[10px] font-black text-primary-600 uppercase mt-1 tracking-tighter">
+                    {user?.role.replace('_', ' ')}
+                  </p>
                 </div>
-                <ChevronDown className="h-4 w-4 text-gray-400 hidden sm:block" />
+                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white shadow-lg shadow-primary-200 border-2 border-white ring-1 ring-primary-100">
+                  <span className="text-sm font-bold">{user?.first_name.charAt(0)}{user?.last_name.charAt(0)}</span>
+                </div>
+                <ChevronDown className={`h-4 w-4 text-slate-400 hidden sm:block transition-transform duration-200 ${isProfileOpen ? 'rotate-180' : ''}`} />
               </button>
 
-              {/* Dropdown Menu */}
+              {/* Profile Dropdown */}
               {isProfileOpen && (
                 <>
-                  {/* Invisible overlay to close dropdown when clicking outside */}
-                  <div 
-                    className="fixed inset-0 z-40" 
-                    onClick={() => setIsProfileOpen(false)}
-                  ></div>
-                  
-                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 py-1 z-50">
-                    <div className="px-4 py-3 border-b border-gray-100 sm:hidden">
-                      <p className="text-sm font-medium text-gray-900 truncate">{user?.first_name} {user?.last_name}</p>
-                      <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsProfileOpen(false)}></div>
+                  <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl shadow-slate-200/60 ring-1 ring-slate-200 py-2 z-50 animate-in fade-in zoom-in duration-150">
+                    <div className="px-5 py-4 border-b border-slate-50">
+                      <p className="text-sm font-bold text-slate-900">{user?.first_name} {user?.last_name}</p>
+                      <p className="text-xs text-slate-400 truncate mt-0.5">{user?.email}</p>
                     </div>
-                    <button 
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                      onClick={() => { setIsProfileOpen(false); /* Navigate to profile */ }}
-                    >
-                      <UserIcon className="h-4 w-4 text-gray-400" />
-                      My Profile
-                    </button>
-                    <button 
-                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                      onClick={() => setIsProfileOpen(false)}
-                    >
-                      <Settings className="h-4 w-4 text-gray-400" />
-                      Account Settings
-                    </button>
-                    <div className="border-t border-gray-100 my-1"></div>
-                    <button 
-                      onClick={() => {
-                        setIsProfileOpen(false);
-                        logout();
-                      }}
-                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
-                    >
-                      <LogOut className="h-4 w-4 text-red-500" />
-                      Sign out
-                    </button>
+                    <div className="p-2">
+                      <button className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl flex items-center gap-3 transition-colors">
+                        <UserIcon className="h-4 w-4 text-slate-400" />
+                        Account Profile
+                      </button>
+                      <button className="w-full text-left px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 rounded-xl flex items-center gap-3 transition-colors">
+                        <Settings className="h-4 w-4 text-slate-400" />
+                        Preferences
+                      </button>
+                    </div>
+                    <div className="border-t border-slate-50 m-2"></div>
+                    <div className="p-2">
+                      <button onClick={logout} className="w-full text-left px-4 py-2.5 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl flex items-center gap-3 transition-colors">
+                        <LogOut className="h-4 w-4" />
+                        Log Out
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
             </div>
-
           </div>
         </header>
 
-        {/* --- MAIN VIEWPORT --- */}
-        <main className="flex-1 overflow-auto bg-gray-50 p-4 sm:p-6 lg:p-8">
-          <Outlet />
+        {/* --- 7. CONTENT VIEWPORT --- */}
+        <main className="flex-1 overflow-auto bg-[#F8FAFC] p-4 sm:p-8">
+          {/* Internal shadow to give "depth" to the main area */}
+          <div className="max-w-[1600px] mx-auto">
+            <Outlet />
+          </div>
         </main>
 
       </div>

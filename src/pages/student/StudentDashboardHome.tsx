@@ -1,4 +1,3 @@
-// src/pages/student/StudentDashboardHome.tsx
 import { Banknote, CalendarCheck, CheckCircle2, AlertCircle, Users } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import { useMyStudentProfile } from '@/hooks/useStudents';
