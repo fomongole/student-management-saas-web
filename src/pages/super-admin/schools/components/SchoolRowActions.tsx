@@ -1,5 +1,5 @@
-// src/pages/super-admin/schools/components/SchoolRowActions.tsx
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { MoreVertical, UserPlus, Power, PowerOff, GraduationCap } from 'lucide-react';
 import type { School } from '@/types/school';
 import { useUpdateSchool } from '@/hooks/useSchools';
@@ -10,20 +10,53 @@ export default function SchoolRowActions({ school }: { school: School }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isLevelsModalOpen, setIsLevelsModalOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [menuCoords, setMenuCoords] = useState({ top: 0, left: 0 });
+
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const { mutate: updateSchool } = useUpdateSchool();
 
-  // Close dropdown if clicked outside
+  const toggleMenu = () => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      // w-52 = 208px
+      setMenuCoords({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.right + window.scrollX - 208, 
+      });
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+  };
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        menuRef.current && !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current && !buttonRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+
+    function handleScrollOrResize() {
+      if (isOpen) setIsOpen(false);
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      window.addEventListener('resize', handleScrollOrResize);
+      window.addEventListener('scroll', handleScrollOrResize, true);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+    };
+  }, [isOpen]);
 
   const handleToggleStatus = () => {
     updateSchool({ id: school.id, data: { is_active: !school.is_active } });
@@ -32,16 +65,21 @@ export default function SchoolRowActions({ school }: { school: School }) {
 
   return (
     <>
-      <div className="relative flex justify-end" ref={dropdownRef}>
+      <div className="flex justify-end">
         <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="p-1 text-gray-400 hover:text-gray-900 transition-colors rounded-full hover:bg-gray-100 focus:outline-none"
+          ref={buttonRef}
+          onClick={toggleMenu}
+          className="p-1 text-gray-400 hover:text-gray-900 transition-colors rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           <MoreVertical className="h-5 w-5" />
         </button>
 
-        {isOpen && (
-          <div className="absolute right-0 top-8 z-10 w-52 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+        {isOpen && createPortal(
+          <div 
+            ref={menuRef}
+            style={{ top: menuCoords.top, left: menuCoords.left }}
+            className="absolute z-[9999] w-52 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 animate-in fade-in zoom-in-95 duration-100 origin-top-right"
+          >
             <div className="py-1">
 
               {/* Assign Admin */}
@@ -80,7 +118,8 @@ export default function SchoolRowActions({ school }: { school: School }) {
                 )}
               </button>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
 

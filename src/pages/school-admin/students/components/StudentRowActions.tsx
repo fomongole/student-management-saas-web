@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { MoreVertical, Edit, Banknote, UserMinus } from 'lucide-react';
 import type { Student } from '@/types/student';
 import EditStudentModal from './EditStudentModal';
@@ -10,21 +11,58 @@ export default function StudentRowActions({ student }: { student: Student }) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isFinancialsOpen, setIsFinancialsOpen] = useState(false);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [menuCoords, setMenuCoords] = useState({ top: 0, left: 0 });
+  
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const toggleMenu = () => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      // w-56 = 224px
+      setMenuCoords({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.right + window.scrollX - 224, 
+      });
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) setIsOpen(false);
+      if (
+        menuRef.current && !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current && !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+
+    function handleScrollOrResize() {
+      if (isOpen) setIsOpen(false);
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      window.addEventListener('resize', handleScrollOrResize);
+      window.addEventListener('scroll', handleScrollOrResize, true);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+    };
+  }, [isOpen]);
 
   return (
     <>
-      <div className="relative flex justify-end" ref={dropdownRef}>
+      <div className="flex justify-end">
         <button 
-          onClick={() => setIsOpen(!isOpen)} 
+          ref={buttonRef}
+          onClick={toggleMenu} 
           aria-haspopup="true"
           aria-expanded={isOpen}
           className="p-1.5 text-gray-400 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -32,10 +70,13 @@ export default function StudentRowActions({ student }: { student: Student }) {
           <MoreVertical className="h-5 w-5" />
         </button>
 
-        {isOpen && (
-          <div className="absolute right-0 top-10 z-50 w-56 rounded-xl bg-white shadow-xl ring-1 ring-black ring-opacity-5 animate-in fade-in zoom-in-95 duration-100 origin-top-right">
+        {isOpen && createPortal(
+          <div 
+            ref={menuRef}
+            style={{ top: menuCoords.top, left: menuCoords.left }}
+            className="absolute z-[9999] w-56 rounded-xl bg-white shadow-xl ring-1 ring-black ring-opacity-5 animate-in fade-in zoom-in-95 duration-100 origin-top-right"
+          >
             <div className="py-1">
-              
               <button 
                 onClick={() => { setIsOpen(false); setIsFinancialsOpen(true); }} 
                 className="group flex w-full items-center px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
@@ -61,9 +102,9 @@ export default function StudentRowActions({ student }: { student: Student }) {
                 <UserMinus className="mr-3 h-4 w-4 text-orange-500" /> 
                 Change Status
               </button>
-
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
 

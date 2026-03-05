@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { MoreVertical, Edit, Trash2 } from 'lucide-react';
 import type { Parent } from '@/types/parent';
 import { useDeleteParent } from '@/hooks/useParents';
@@ -7,19 +8,53 @@ import EditParentModal from './EditParentModal';
 export default function ParentRowActions({ parent }: { parent: Parent }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [menuCoords, setMenuCoords] = useState({ top: 0, left: 0 });
+  
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   
   const { mutate: deleteParent } = useDeleteParent();
 
+  const toggleMenu = () => {
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      // w-48 = 192px
+      setMenuCoords({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.right + window.scrollX - 192, 
+      });
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+  };
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        menuRef.current && !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current && !buttonRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+
+    function handleScrollOrResize() {
+      if (isOpen) setIsOpen(false);
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      window.addEventListener('resize', handleScrollOrResize);
+      window.addEventListener('scroll', handleScrollOrResize, true);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+    };
+  }, [isOpen]);
 
   const handleDelete = () => {
     if (window.confirm(`Are you sure you want to permanently delete ${parent.first_name} ${parent.last_name}? This will revoke their portal access immediately.`)) {
@@ -30,18 +65,22 @@ export default function ParentRowActions({ parent }: { parent: Parent }) {
 
   return (
     <>
-      <div className="relative flex justify-end" ref={dropdownRef}>
+      <div className="flex justify-end">
         <button 
-          onClick={() => setIsOpen(!isOpen)}
-          className="p-1 text-gray-400 hover:text-gray-900 rounded-full hover:bg-gray-100 transition-colors"
+          ref={buttonRef}
+          onClick={toggleMenu}
+          className="p-1 text-gray-400 hover:text-gray-900 rounded-full hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           <MoreVertical className="h-5 w-5" />
         </button>
 
-        {isOpen && (
-          <div className="absolute right-0 top-8 z-10 w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+        {isOpen && createPortal(
+          <div 
+            ref={menuRef}
+            style={{ top: menuCoords.top, left: menuCoords.left }}
+            className="absolute z-[9999] w-48 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 animate-in fade-in zoom-in-95 duration-100 origin-top-right"
+          >
             <div className="py-1">
-              
               <button
                 onClick={() => { setIsOpen(false); setIsEditModalOpen(true); }}
                 className="group flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
@@ -60,7 +99,8 @@ export default function ParentRowActions({ parent }: { parent: Parent }) {
                 Remove Access
               </button>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </div>
 
